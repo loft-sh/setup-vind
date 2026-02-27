@@ -110,11 +110,34 @@ export class VindMainService {
     await executeVClusterCommand(['use', 'driver', 'docker']);
   }
 
+  private async sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   async createCluster(): Promise<void> {
-    core.info(`Creating vind cluster "${this.name}"`);
-    await executeVClusterCommand(this.createCommand());
-    core.info('Updating kubeconfig');
-    await executeVClusterCommand(this.connectCommand());
-    core.info(`Cluster "${this.name}" created and kubeconfig updated`);
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        core.info(`Creating vind cluster "${this.name}" (attempt ${attempt}/${maxRetries})`);
+        await executeVClusterCommand(this.createCommand());
+        core.info('Updating kubeconfig');
+        await executeVClusterCommand(this.connectCommand());
+        core.info(`Cluster "${this.name}" created and kubeconfig updated`);
+        return;
+      } catch (error) {
+        const msg = (error as Error).message || '';
+        if (attempt < maxRetries && msg.includes('Failed to connect to bus')) {
+          core.warning(`Attempt ${attempt} failed (systemd/dbus race). Cleaning up and retrying in 5s...`);
+          try {
+            await executeVClusterCommand(['delete', this.name, '--delete-context=false']);
+          } catch {
+            // cleanup is best-effort
+          }
+          await this.sleep(5000);
+          continue;
+        }
+        throw error;
+      }
+    }
   }
 }
