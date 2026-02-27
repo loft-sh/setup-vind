@@ -1,0 +1,35 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "setup-vind ref to test (branch, tag, or SHA)"
+        required: false
+        default: main
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        workflow:
+          - test-basic.yml
+          - test-custom-name.yml
+          - test-multi-cluster.yml
+          - test-k8s-version.yml
+          - test-config-file.yml
+    steps:
+      - name: Trigger ${{ matrix.workflow }}
+        run: |
+          gh workflow run "${{ matrix.workflow }}" \
+            --repo vClusterLabs-Experiments/setup-vind-test \
+            --ref main
+        env:
+          GH_TOKEN: ${{ secrets.TEST_REPO_PAT }}
