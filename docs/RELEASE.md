@@ -30,6 +30,18 @@ The major version tag (`v1`) is the recommended pin for consumers:
 - uses: loft-sh/setup-vind@v1
 ```
 
+## Tag management
+
+The release workflow automatically moves the major version tag (`v1`) to track the latest semver release in that line. For manual updates between releases:
+
+```bash
+# move v1 to latest main
+git tag -f v1
+git push origin v1 --force
+```
+
+This is safe because `v1` is a floating pointer — consumers expect it to move forward.
+
 ## Verifying provenance
 
 Consumers can verify that a release was built by this repo's CI:
