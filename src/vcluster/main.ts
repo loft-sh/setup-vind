@@ -30,19 +30,32 @@ export class VindMainService {
     if (this.version !== 'latest') {
       return this.version.startsWith('v') ? this.version : `v${this.version}`;
     }
-    const response = await fetch(
-      'https://github.com/loft-sh/vcluster/releases/latest',
-      { redirect: 'manual' },
-    );
-    const location = response.headers.get('location');
-    if (!location) {
-      throw new Error('Failed to resolve latest vCluster version');
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const response = await fetch(
+          'https://github.com/loft-sh/vcluster/releases/latest',
+          { redirect: 'manual' },
+        );
+        const location = response.headers.get('location');
+        if (!location) {
+          throw new Error('Failed to resolve latest vCluster version');
+        }
+        const matches = /\/tag\/(.*)$/.exec(location);
+        if (!matches) {
+          throw new Error(`Failed to parse version from redirect: ${location}`);
+        }
+        return matches[1];
+      } catch (error) {
+        if (attempt < 3) {
+          core.warning(`Version resolution attempt ${attempt} failed: ${(error as Error).message}. Retrying...`);
+          await this.sleep(2000);
+          continue;
+        }
+        throw error;
+      }
     }
-    const matches = /\/tag\/(.*)$/.exec(location);
-    if (!matches) {
-      throw new Error(`Failed to parse version from redirect: ${location}`);
-    }
-    return matches[1];
+    throw new Error('Failed to resolve latest vCluster version');
   }
 
   private checkVersion(version: string): void {
