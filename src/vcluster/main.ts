@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import * as exec from '@actions/exec';
 import * as tc from '@actions/tool-cache';
 import fs from 'fs';
 import path from 'path';
@@ -114,6 +115,34 @@ export class VindMainService {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  private async waitForNode(): Promise<void> {
+    const timeoutSeconds = 300;
+    const pollInterval = 5000;
+    const deadline = Date.now() + timeoutSeconds * 1000;
+
+    while (Date.now() < deadline) {
+      try {
+        let stdout = '';
+        await exec.exec('kubectl', ['get', 'nodes', '--no-headers'], {
+          silent: true,
+          listeners: {
+            stdout: (data: Buffer) => {
+              stdout += data.toString();
+            },
+          },
+        });
+        if (stdout.includes(' Ready')) {
+          core.info('Node is ready');
+          return;
+        }
+      } catch {
+        // node not registered yet
+      }
+      await this.sleep(pollInterval);
+    }
+    throw new Error(`Timed out waiting for node to become Ready (${timeoutSeconds}s)`);
+  }
+
   async createCluster(): Promise<void> {
     const maxRetries = 3;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -122,7 +151,9 @@ export class VindMainService {
         await executeVClusterCommand(this.createCommand());
         core.info('Updating kubeconfig');
         await executeVClusterCommand(this.connectCommand());
-        core.info(`Cluster "${this.name}" created and kubeconfig updated`);
+        core.info('Waiting for node to become ready');
+        await this.waitForNode();
+        core.info(`Cluster "${this.name}" created and ready`);
         return;
       } catch (error) {
         const msg = (error as Error).message || '';
