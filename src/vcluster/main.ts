@@ -171,13 +171,14 @@ export class VindMainService {
       } catch (error) {
         const msg = (error as Error).message || '';
         if (attempt < maxRetries && msg.includes('Failed to connect to bus')) {
-          core.warning(`Attempt ${attempt} failed (systemd/dbus race). Cleaning up and retrying in 5s...`);
+          const delay = attempt * 10000;
+          core.warning(`Attempt ${attempt} failed (systemd/dbus race). Cleaning up and retrying in ${delay / 1000}s...`);
           try {
             await executeVClusterCommand(['delete', this.name, '--delete-context=false']);
           } catch {
             // cleanup is best-effort
           }
-          await this.sleep(5000);
+          await this.sleep(delay);
           continue;
         }
         throw error;
