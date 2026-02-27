@@ -1,0 +1,33 @@
+name: "vind (vCluster in Docker) Action"
+description: "Provision a Kubernetes cluster via vCluster Docker driver for CI/CD"
+author: "Loft Labs"
+inputs:
+  version:
+    description: "vCluster CLI version to install"
+    required: false
+    default: "latest"
+  name:
+    description: "Cluster name"
+    required: false
+    default: "vind"
+  config:
+    description: "Path to vcluster.yaml values file (repo-relative)"
+    required: false
+    default: ""
+  kubernetes-version:
+    description: "Kubernetes version for the vind cluster"
+    required: false
+    default: ""
+  skipClusterDeletion:
+    description: "Skip cluster deletion in post step"
+    required: false
+    default: "false"
+  skipClusterLogsExport:
+    description: "Skip log export in post step"
+    required: false
+    default: "false"
+runs:
+  using: "node20"
+  main: "dist/main/index.js"
+  post: "dist/post/index.js"
+  post-if: success()
