@@ -101,6 +101,10 @@ export class VindMainService {
     return args;
   }
 
+  connectCommand(): string[] {
+    return ['connect', this.name, '--update-current'];
+  }
+
   async setDockerDriver(): Promise<void> {
     core.info('Setting vCluster driver to docker');
     await executeVClusterCommand(['use', 'driver', 'docker']);
@@ -109,6 +113,8 @@ export class VindMainService {
   async createCluster(): Promise<void> {
     core.info(`Creating vind cluster "${this.name}"`);
     await executeVClusterCommand(this.createCommand());
-    core.info(`Cluster "${this.name}" created`);
+    core.info('Updating kubeconfig');
+    await executeVClusterCommand(this.connectCommand());
+    core.info(`Cluster "${this.name}" created and kubeconfig updated`);
   }
 }

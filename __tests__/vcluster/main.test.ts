@@ -88,4 +88,13 @@ describe('VindMainService', () => {
       'controlPlane.distro.k3s.image.tag=v1.30.0-k3s1',
     ]);
   });
+
+  it('builds connect command', () => {
+    const service = VindMainService.getInstance();
+    expect(service.connectCommand()).toEqual([
+      'connect',
+      'test-cluster',
+      '--update-current',
+    ]);
+  });
 });
