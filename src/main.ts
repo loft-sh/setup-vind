@@ -9,6 +9,7 @@ async function run() {
   try {
     checkEnvironment();
     await loadKernelModules();
+    await ensureDbus();
     const service = VindMainService.getInstance();
     const toolPath = await service.installVCluster();
     core.addPath(toolPath);
@@ -33,6 +34,40 @@ async function loadKernelModules(): Promise<void> {
   } catch {
     core.warning('Could not set bridge-nf-call-iptables');
   }
+}
+
+async function ensureDbus(): Promise<void> {
+  try {
+    await exec.exec('systemctl', ['is-active', '--quiet', 'dbus'], { silent: true });
+    return;
+  } catch {
+    // dbus not running
+  }
+
+  core.info('Starting dbus (required by vCluster standalone)');
+  try {
+    await exec.exec('sudo', ['systemctl', 'start', 'dbus'], { silent: true });
+  } catch {
+    try {
+      await exec.exec('sudo', ['dbus-daemon', '--system', '--fork'], { silent: true });
+    } catch {
+      core.warning('Could not start dbus — cluster creation may fail');
+      return;
+    }
+  }
+
+  // wait for the socket to appear
+  const deadline = Date.now() + 10000;
+  while (Date.now() < deadline) {
+    try {
+      await exec.exec('systemctl', ['is-active', '--quiet', 'dbus'], { silent: true });
+      core.info('dbus is running');
+      return;
+    } catch {
+      await new Promise((r) => setTimeout(r, 500));
+    }
+  }
+  core.warning('dbus did not become active within 10s');
 }
 
 function checkEnvironment() {
