@@ -42,15 +42,21 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     needs: [test, check-dist]
+    strategy:
+      fail-fast: false
+      matrix:
+        vcluster-version: [latest, v0.32.2-rc.1]
     steps:
       - uses: actions/checkout@v4
       - uses: ./
         with:
-          version: latest
+          version: ${{ matrix.vcluster-version }}
           name: ci-test
       - name: Verify cluster
         run: |
           kubectl get nodes
           kubectl cluster-info
       - name: Verify vcluster
-        run: vcluster list
+        run: |
+          vcluster list
+          vcluster --version
