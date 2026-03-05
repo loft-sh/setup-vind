@@ -51,7 +51,7 @@ jobs:
       - uses: ./
         with:
           version: ${{ matrix.vcluster-version }}
-          name: ci-test
+          name: ci-test-${{ strategy.job-index }}
       - name: Verify cluster
         run: |
           kubectl get nodes
