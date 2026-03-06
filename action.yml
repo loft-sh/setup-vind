@@ -32,5 +32,5 @@ runs:
   post: "dist/post/index.js"
   post-if: success()
 branding:
-  icon: 'server'
+  icon: 'layers'
   color: 'purple'
