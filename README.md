@@ -1,5 +1,7 @@
 # setup-vind
 
+[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com)
+
 GitHub Action to provision Kubernetes clusters via [vCluster's Docker driver (vind)](https://github.com/loft-sh/vind). Drop-in replacement for [setup-kind](https://github.com/loft-sh/setup-kind).
 
 ## Usage
