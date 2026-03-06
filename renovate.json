@@ -20,7 +20,7 @@
     {
       "customType": "regex",
       "fileMatch": ["^VCLUSTER_VERSION$"],
-      "matchStrings": ["(?<currentValue>v\\d+\\.\\d+\\.\\d+)\\n"],
+      "matchStrings": ["(?<currentValue>v\\d+\\.\\d+\\.\\d+[^\\n]*)\\n"],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "loft-sh/vcluster",
       "extractVersionTemplate": "^v(?<version>.*)$"
