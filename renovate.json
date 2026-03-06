@@ -6,11 +6,6 @@
   "labels": ["dependencies"],
   "packageRules": [
     {
-      "matchPackageNames": ["@actions/glob"],
-      "allowedVersions": "<0.6.0",
-      "description": "v0.6.0 is ESM-only (type:module, no CJS exports) — incompatible with ncc/webpack bundler"
-    },
-    {
       "matchUpdateTypes": ["patch"],
       "matchManagers": ["npm"],
       "automerge": true
