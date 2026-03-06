@@ -45,12 +45,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        vcluster-version: [latest, v0.32.2-rc.1]
+        vcluster-version: [latest, v0.32.2-rc.1, pinned]
     steps:
       - uses: actions/checkout@v4
+      - name: Resolve pinned version
+        if: matrix.vcluster-version == 'pinned'
+        id: pinned
+        run: echo "version=$(cat VCLUSTER_VERSION)" >> "$GITHUB_OUTPUT"
       - uses: ./
         with:
-          version: ${{ matrix.vcluster-version }}
+          version: ${{ matrix.vcluster-version == 'pinned' && steps.pinned.outputs.version || matrix.vcluster-version }}
           name: ci-test-${{ strategy.job-index }}
       - name: Verify cluster
         run: |
