@@ -33,4 +33,4 @@ runs:
   post-if: success()
 branding:
   icon: 'layers'
-  color: 'purple'
+  color: 'orange'
