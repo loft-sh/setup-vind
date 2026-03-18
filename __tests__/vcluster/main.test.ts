@@ -61,7 +61,7 @@ describe('VindMainService', () => {
     ]);
   });
 
-  it('builds create command with kubernetes version', () => {
+  it('builds create command with kubernetes version (pre-v0.33.0)', () => {
     setEnv({ 'INPUT_KUBERNETES-VERSION': '1.31.0' });
     const service = VindMainService.getInstance();
     const cmd = service.createCommand();
@@ -71,7 +71,20 @@ describe('VindMainService', () => {
     );
   });
 
-  it('builds create command with config and k8s version', () => {
+  it('builds create command with kubernetes version (v0.33.0+)', () => {
+    setEnv({
+      INPUT_VERSION: 'v0.33.0',
+      'INPUT_KUBERNETES-VERSION': '1.35.0',
+    });
+    const service = VindMainService.getInstance();
+    const cmd = service.createCommand();
+    expect(cmd).toContain('--set');
+    expect(cmd).toContain(
+      'controlPlane.distro.k8s.image.tag=v1.35.0',
+    );
+  });
+
+  it('builds create command with config and k8s version (pre-v0.33.0)', () => {
     setEnv({
       INPUT_CONFIG: 'test/values.yaml',
       'INPUT_KUBERNETES-VERSION': 'v1.30.0',
@@ -86,6 +99,25 @@ describe('VindMainService', () => {
       '/github/workspace/test/values.yaml',
       '--set',
       'controlPlane.distro.k3s.image.tag=v1.30.0-k3s1',
+    ]);
+  });
+
+  it('builds create command with config and k8s version (v0.33.0+)', () => {
+    setEnv({
+      INPUT_VERSION: 'v0.33.0',
+      INPUT_CONFIG: 'test/values.yaml',
+      'INPUT_KUBERNETES-VERSION': 'v1.35.0',
+    });
+    const service = VindMainService.getInstance();
+    const cmd = service.createCommand();
+    expect(cmd).toEqual([
+      'create',
+      'test-cluster',
+      '--connect=false',
+      '--values',
+      '/github/workspace/test/values.yaml',
+      '--set',
+      'controlPlane.distro.k8s.image.tag=v1.35.0',
     ]);
   });
 

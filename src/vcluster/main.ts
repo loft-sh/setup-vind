@@ -14,6 +14,7 @@ export class VindMainService {
   readonly name: string;
   readonly configFile: string;
   readonly kubernetesVersion: string;
+  private resolvedVersion: string = '';
 
   private constructor() {
     this.version = core.getInput(Input.Version) || 'latest';
@@ -82,6 +83,7 @@ export class VindMainService {
 
   async installVCluster(): Promise<string> {
     const version = await this.resolveVersion();
+    this.resolvedVersion = version;
     this.checkVersion(version);
     const cleanVersion = semver.clean(version) || version.replace(/^v/, '');
 
@@ -106,10 +108,14 @@ export class VindMainService {
     }
 
     if (this.kubernetesVersion) {
-      args.push(
-        '--set',
-        `controlPlane.distro.k3s.image.tag=v${this.kubernetesVersion.replace(/^v/, '')}-k3s1`,
-      );
+      const ver = this.kubernetesVersion.replace(/^v/, '');
+      const clean = semver.clean(this.resolvedVersion || this.version) || '0.0.0';
+      if (semver.gte(clean, '0.33.0')) {
+        // v0.33.0 removed k3s distro, uses loft-sh/kubernetes images
+        args.push('--set', `controlPlane.distro.k8s.image.tag=v${ver}`);
+      } else {
+        args.push('--set', `controlPlane.distro.k3s.image.tag=v${ver}-k3s1`);
+      }
     }
 
     return args;
