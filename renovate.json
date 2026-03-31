@@ -3,24 +3,38 @@
   "extends": [
     "config:recommended"
   ],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["patch"],
-      "matchManagers": ["npm"],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "matchManagers": [
+        "npm"
+      ],
       "automerge": true
     },
     {
-      "matchManagers": ["npm"],
-      "matchDepTypes": ["devDependencies"],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
       "groupName": "dev dependencies"
     }
   ],
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^VCLUSTER_VERSION$"],
-      "matchStrings": ["(?<currentValue>v\\d+\\.\\d+\\.\\d+[^\\n]*)\\n"],
+      "managerFilePatterns": [
+        "/^VCLUSTER_VERSION$/"
+      ],
+      "matchStrings": [
+        "(?<currentValue>v\\d+\\.\\d+\\.\\d+[^\\n]*)\\n"
+      ],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "loft-sh/vcluster",
       "extractVersionTemplate": "^v(?<version>.*)$"
