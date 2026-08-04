@@ -61,7 +61,7 @@ jobs:
 
 **Main step:** installs vCluster CLI → sets Docker driver (`vcluster use driver docker`) → creates cluster (`vcluster create`)
 
-**Post step:** exports container logs as GitHub artifact → deletes cluster (`vcluster delete`)
+**Post step (always, including failures):** exports container logs as a GitHub artifact → deletes cluster (`vcluster delete`)
 
 ## Migrating from setup-kind
 
