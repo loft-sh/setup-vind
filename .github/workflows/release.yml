@@ -19,8 +19,8 @@ jobs:
         with:
           persist-credentials: false
       # setup-node's dependency cache is disabled here; release inputs come from npm ci.
-      # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # zizmor: ignore[cache-poisoning]
+      # v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # zizmor: ignore[cache-poisoning]
         with:
           node-version: 24
       - run: npm ci
