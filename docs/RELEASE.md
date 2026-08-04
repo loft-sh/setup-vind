@@ -13,7 +13,7 @@
 ## What the workflow does
 
 1. **Builds from source** — `npm ci && npm test && npm run build` to verify the tag is clean
-2. **Generates SLSA provenance** — `actions/attest-build-provenance@v2` creates a Sigstore-backed attestation for the dist bundles, proving they were built by this repo's CI
+2. **Generates SLSA provenance** — `actions/attest-build-provenance@v4` creates a Sigstore-backed attestation for the dist bundles, proving they were built by this repo's CI
 3. **Creates GitHub Release** — with auto-generated release notes (commit diff since last tag)
 4. **Updates major version tag** — force-pushes `v1` (or `v2`, etc.) to track the latest release in that major line
 
@@ -54,12 +54,12 @@ gh attestation verify dist/main/index.js --repo loft-sh/setup-vind
 - **Least-privilege permissions** — CI uses `contents: read`, release adds only `contents: write`, `id-token: write`, `attestations: write`
 - **Provenance attestation** — every release gets a Sigstore-backed SLSA attestation
 - **check-dist CI job** — verifies dist/ bundles match source on every PR
-- **Dependabot** — automated dependency updates (configure in `.github/dependabot.yml`)
+- **Renovate** — automated dependency and vCluster CLI updates, including digest-pinned GitHub Actions
 - **No secrets in action** — the action only downloads the public vCluster CLI binary; no tokens or credentials are handled
 
 ## Pre-release checklist
 
-- [ ] Tests pass locally (`npm test`)
+- [ ] Checks pass locally (`npm run lint && npm run typecheck && npm test`)
 - [ ] dist/ is up to date (`npm run build && git diff dist/`)
 - [ ] CHANGELOG entry added (if applicable)
 - [ ] Version in package.json updated (optional, informational only)

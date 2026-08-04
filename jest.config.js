@@ -4,7 +4,7 @@ module.exports = {
   collectCoverageFrom: ['./src/**'],
   coverageReporters: ['lcov', 'text'],
   resolver: '<rootDir>/jest-resolver.js',
-  transformIgnorePatterns: ['node_modules/(?!@actions/)'],
+  transformIgnorePatterns: ['node_modules/(?!(?:@actions|uuid)/)'],
   transform: {
     '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: { allowJs: true } }],
   },

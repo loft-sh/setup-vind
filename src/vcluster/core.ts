@@ -16,7 +16,7 @@ export async function executeVClusterCommand(args: string[]): Promise<void> {
     const msg = stderr
       ? `${(error as Error).message}\n${stderr.trim()}`
       : (error as Error).message;
-    throw new Error(msg);
+    throw new Error(msg, { cause: error });
   }
 }
 

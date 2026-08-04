@@ -3,31 +3,61 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - '.github/workflows/ci.yml'
+      - '__tests__/**'
+      - 'dist/**'
+      - 'src/**'
+      - 'VCLUSTER_VERSION'
+      - 'action.yml'
+      - 'eslint.config.mjs'
+      - 'jest*.js'
+      - 'package*.json'
+      - 'tsconfig.json'
   pull_request:
     branches: [main]
+    paths:
+      - '.github/workflows/ci.yml'
+      - '__tests__/**'
+      - 'dist/**'
+      - 'src/**'
+      - 'VCLUSTER_VERSION'
+      - 'action.yml'
+      - 'eslint.config.mjs'
+      - 'jest*.js'
+      - 'package*.json'
+      - 'tsconfig.json'
 
 permissions:
   contents: read
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          node-version: 20
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm test
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --runInBand
 
   check-dist:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          node-version: 20
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -40,14 +70,17 @@ jobs:
           fi
 
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     needs: [test, check-dist]
     strategy:
       fail-fast: false
       matrix:
         vcluster-version: [latest, v0.32.2-rc.1, pinned]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - name: Resolve pinned version
         if: matrix.vcluster-version == 'pinned'
         id: pinned
