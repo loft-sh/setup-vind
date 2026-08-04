@@ -1,5 +1,9 @@
 import { VindPostService } from '../../src/vcluster/post';
 
+jest.mock('@actions/artifact', () => ({
+  DefaultArtifactClient: jest.fn(),
+}));
+
 const DEFAULTS = {
   INPUT_NAME: 'test-cluster',
   INPUT_SKIPCLUSTERDELETION: 'false',
@@ -60,5 +64,18 @@ describe('VindPostService', () => {
       'vind',
       '--delete-context=false',
     ]);
+  });
+
+  it('deletes the cluster even when log export fails', async () => {
+    const service = VindPostService.getInstance();
+    jest
+      .spyOn(service, 'exportClusterLogs')
+      .mockRejectedValue(new Error('artifact upload failed'));
+    const deleteCluster = jest
+      .spyOn(service, 'deleteCluster')
+      .mockResolvedValue();
+
+    await expect(service.cleanup()).rejects.toThrow('artifact upload failed');
+    expect(deleteCluster).toHaveBeenCalledTimes(1);
   });
 });

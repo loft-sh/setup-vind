@@ -1,15 +1,14 @@
-// Custom resolver: strips the exports map for ESM-only packages nested
-// under @actions/glob so Jest's CJS resolver falls back to "main".
-// Scoped narrowly to avoid breaking other packages with valid exports maps.
+// Custom resolver: the Node 24 @actions packages are ESM-only and expose an
+// `import` condition, while Jest 29 resolves this TypeScript suite as CJS.
+// Strip exports only inside the @actions tree so Jest falls back to `main`;
+// ts-jest then transforms those files using the rule in jest.config.js.
 module.exports = (path, options) => {
   return options.defaultResolver(path, {
     ...options,
     packageFilter: (pkg, pkgDir) => {
-      const inGlobTree =
-        pkgDir &&
-        (pkgDir.includes('@actions/glob') ||
-          pkg.name === '@actions/glob');
-      if (inGlobTree && pkg.type === 'module' && pkg.exports && pkg.main) {
+      const inActionsTree =
+        pkgDir && (pkgDir.includes('/@actions/') || pkg.name?.startsWith('@actions/'));
+      if (inActionsTree && pkg.type === 'module' && pkg.exports && pkg.main) {
         delete pkg.exports;
       }
       return pkg;

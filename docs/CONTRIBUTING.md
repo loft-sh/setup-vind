@@ -2,17 +2,21 @@
 
 ## Setup
 
+Install Node.js 24, then install the locked dependencies:
+
 ```bash
 git clone https://github.com/loft-sh/setup-vind.git
 cd setup-vind
-npm install
+npm ci
 ```
 
 ## Development
 
 ```bash
+npm run lint      # lint TypeScript
+npm run typecheck # type-check without emitting files
 npm test          # run tests
-npm run build     # bundle with ncc
+npm run build     # bundle with esbuild
 ```
 
 ## Architecture
@@ -45,7 +49,7 @@ main.ts                          post.ts
 
 ### Build
 
-Bundled with `@vercel/ncc` into two self-contained files:
+Bundled with `esbuild` into two self-contained Node.js 24 files:
 - `dist/main/index.js` — main action
 - `dist/post/index.js` — post action
 

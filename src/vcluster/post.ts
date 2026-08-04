@@ -100,4 +100,12 @@ export class VindPostService {
     await executeVClusterCommand(this.deleteCommand());
     core.info(`Cluster "${this.name}" deleted`);
   }
+
+  async cleanup(): Promise<void> {
+    try {
+      await this.exportClusterLogs();
+    } finally {
+      await this.deleteCluster();
+    }
+  }
 }

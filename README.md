@@ -9,12 +9,14 @@ GitHub Action to provision Kubernetes clusters via [vCluster's Docker driver (vi
 ```yaml
 jobs:
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: loft-sh/setup-vind@v1
         with:
-          version: v0.31.0
+          version: v0.36.1
           name: my-cluster
       - run: kubectl get nodes
 ```
@@ -61,13 +63,20 @@ jobs:
 
 **Main step:** installs vCluster CLI → sets Docker driver (`vcluster use driver docker`) → creates cluster (`vcluster create`)
 
-**Post step (always, including failures):** exports container logs as a GitHub artifact → deletes cluster (`vcluster delete`)
+**Post step (success, failure, or cancellation):** exports container logs as a GitHub artifact → deletes the cluster (`vcluster delete`). Cluster deletion still runs if log collection or upload fails. Use the `skipClusterDeletion` and `skipClusterLogsExport` inputs to opt out.
+
+The action intentionally changes the installed vCluster CLI's default driver to Docker. If a later command in the same job must target the vind Kubernetes cluster—for example, `vcluster platform start`—give that command an isolated CLI config instead of inheriting the Docker driver:
+
+```bash
+vcluster platform start \
+  --config "$RUNNER_TEMP/platform-vcluster-config.json"
+```
 
 ## Migrating from setup-kind
 
 | setup-kind | setup-vind | Notes |
 |------------|------------|-------|
-| `version: v0.30.0` | `version: v0.31.0` | vCluster CLI version, not KinD |
+| `version: v0.30.0` | `version: v0.36.1` | vCluster CLI version, not KinD |
 | `image: kindest/node:v1.35.0` | `kubernetes-version: "1.35.0"` | No node image needed |
 | `config: kind.yaml` | `config: vcluster.yaml` | Different config format |
 | `kind load docker-image` | *(not needed)* | Docker images available natively |

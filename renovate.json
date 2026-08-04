@@ -1,7 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    "helpers:pinGitHubActionDigests"
   ],
   "labels": ["dependencies"],
   "packageRules": [
@@ -14,6 +15,11 @@
       "matchManagers": ["npm"],
       "matchDepTypes": ["devDependencies"],
       "groupName": "dev dependencies"
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["/^@actions\\//"],
+      "groupName": "GitHub Actions toolkit"
     }
   ],
   "customManagers": [
