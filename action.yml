@@ -30,7 +30,7 @@ runs:
   using: "node20"
   main: "dist/main/index.js"
   post: "dist/post/index.js"
-  post-if: success()
+  post-if: always()
 branding:
   icon: 'layers'
   color: 'orange'
