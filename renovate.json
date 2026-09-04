@@ -25,7 +25,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^VCLUSTER_VERSION$"],
+      "managerFilePatterns": [
+        "/^VCLUSTER_VERSION$/"
+      ],
       "matchStrings": ["(?<currentValue>v\\d+\\.\\d+\\.\\d+[^\\n]*)\\n"],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "loft-sh/vcluster",
