@@ -20,6 +20,17 @@
       "matchManagers": ["npm"],
       "matchPackageNames": ["/^@actions\\//"],
       "groupName": "GitHub Actions toolkit"
+    },
+    {
+      "description": "Keep internal actions on rolling tags",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "loft-sh/**"
+      ],
+      "pinDigests": false,
+      "enabled": false
     }
   ],
   "customManagers": [
